@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
-import { Send, Save, Shield, Loader2, LogOut } from "lucide-react"
+import { Send, Save, Shield, Loader2, LogOut, History } from "lucide-react"
 import { useGemini } from "@/hooks/use-gemini"
 import { useStacks } from "@/hooks/use-stacks"
 import type { ChatMessage } from "@/types/chat"
@@ -15,16 +15,35 @@ export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [blockchainLogs, setBlockchainLogs] = useState<any[]>([])
+  const [isLoadingLogs, setIsLoadingLogs] = useState(false)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
 
   const { sendMessage } = useGemini()
-  const { saveToBlockchain, verifyChat, isConnected, connectWallet, disconnectWallet, userAddress } = useStacks()
+  const { saveToBlockchain, verifyChat, getUserLogs, isConnected, connectWallet, disconnectWallet, userAddress } =
+    useStacks()
 
   useEffect(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight
     }
   }, [messages])
+
+  const handleLoadLogs = async () => {
+    if (!isConnected) return
+
+    setIsLoadingLogs(true)
+    try {
+      const logs = await getUserLogs()
+      setBlockchainLogs(logs)
+      console.log("Loaded blockchain logs:", logs)
+    } catch (error) {
+      console.error("Error loading logs:", error)
+      alert("Error loading blockchain logs: " + error)
+    } finally {
+      setIsLoadingLogs(false)
+    }
+  }
 
   const handleSendMessage = async () => {
     if (!input.trim() || isLoading) return
@@ -130,6 +149,14 @@ export function ChatInterface() {
                   <Shield className="h-4 w-4 mr-2" />
                   Verify Last Exchange
                 </Button>
+                <Button onClick={handleLoadLogs} size="sm" variant="outline" disabled={isLoadingLogs}>
+                  {isLoadingLogs ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <History className="h-4 w-4 mr-2" />
+                  )}
+                  Load Blockchain Logs
+                </Button>
               </div>
             </div>
           ) : (
@@ -139,6 +166,56 @@ export function ChatInterface() {
           )}
         </CardContent>
       </Card>
+
+      {/* Blockchain Logs Display */}
+      {isConnected && blockchainLogs.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <History className="h-5 w-5" />
+              Blockchain Chat Logs ({blockchainLogs.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px]">
+              <div className="space-y-2">
+                {blockchainLogs.map((log) => (
+                  <div key={log.id} className="border rounded-lg p-3 text-sm">
+                    <div className="flex items-center justify-between mb-2">
+                      <Badge variant="outline">Log #{log.id}</Badge>
+                      {log.timestamp && (
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(log.timestamp * 1000).toLocaleString()}
+                        </span>
+                      )}
+                    </div>
+                    {log.promptHash && (
+                      <div className="mb-1">
+                        <span className="font-medium">Prompt Hash: </span>
+                        <code className="text-xs bg-muted px-1 rounded">{log.promptHash}</code>
+                      </div>
+                    )}
+                    {log.responseHash && (
+                      <div className="mb-1">
+                        <span className="font-medium">Response Hash: </span>
+                        <code className="text-xs bg-muted px-1 rounded">{log.responseHash}</code>
+                      </div>
+                    )}
+                    {log.rawData && (
+                      <details className="mt-2">
+                        <summary className="text-xs cursor-pointer text-muted-foreground">Raw Data</summary>
+                        <code className="text-xs bg-muted p-2 rounded block mt-1 whitespace-pre-wrap">
+                          {log.rawData}
+                        </code>
+                      </details>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Chat Messages */}
       <Card className="h-[500px]">

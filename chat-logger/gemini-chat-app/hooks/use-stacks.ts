@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { connect, disconnect, isConnected as checkConnection, request } from "@stacks/connect"
-import { bufferCV, principalCV, uintCV } from "@stacks/transactions"
+import { bufferCV, principalCV, uintCV, cvToHex } from "@stacks/transactions"
 import { STACKS_TESTNET } from "@stacks/network"
 
 export function useStacks() {
@@ -81,7 +81,7 @@ export function useStacks() {
         },
         body: JSON.stringify({
           sender: userAddress,
-          arguments: functionArgs.map((arg) => `0x${arg.serialize().toString("hex")}`),
+          arguments: functionArgs.map((arg) => cvToHex(arg)),
         }),
       },
     )
@@ -165,9 +165,18 @@ export function useStacks() {
     try {
       const logCountResult = await callReadOnlyFunction("get-user-log-count", [principalCV(userAddress)])
 
-      // TODO: Parse the Clarity response format to extract the actual count
       console.log("Log count result:", logCountResult)
-      const logCount = 0 // TODO: Extract actual count from logCountResult.result
+      let logCount = 0
+
+      if (logCountResult.result && logCountResult.result.startsWith("(ok u")) {
+        // Extract number from "(ok u123)" format
+        const match = logCountResult.result.match(/$$ok u(\d+)$$/)
+        if (match) {
+          logCount = Number.parseInt(match[1], 10)
+        }
+      }
+
+      console.log("Parsed log count:", logCount)
       const logs = []
 
       // Fetch all logs for the user
@@ -175,11 +184,29 @@ export function useStacks() {
         const logResult = await callReadOnlyFunction("get-log", [principalCV(userAddress), uintCV(i)])
 
         if (logResult.result && logResult.result !== "(none)") {
-          logs.push({
-            id: i,
-            data: logResult.result,
-            // TODO: Parse the Clarity tuple format to extract readable data
-          })
+          // Parse tuple format: (ok (some {prompt-hash: 0x..., response-hash: 0x..., timestamp: u...}))
+          console.log("Raw log result:", logResult.result)
+
+          const tupleMatch = logResult.result.match(/$$ok \(some \{([^}]+)\}$$\)/)
+          if (tupleMatch) {
+            const tupleContent = tupleMatch[1]
+            const promptHashMatch = tupleContent.match(/prompt-hash: (0x[a-fA-F0-9]+)/)
+            const responseHashMatch = tupleContent.match(/response-hash: (0x[a-fA-F0-9]+)/)
+            const timestampMatch = tupleContent.match(/timestamp: u(\d+)/)
+
+            logs.push({
+              id: i,
+              promptHash: promptHashMatch ? promptHashMatch[1] : null,
+              responseHash: responseHashMatch ? responseHashMatch[1] : null,
+              timestamp: timestampMatch ? Number.parseInt(timestampMatch[1], 10) : null,
+              rawData: logResult.result,
+            })
+          } else {
+            logs.push({
+              id: i,
+              rawData: logResult.result,
+            })
+          }
         }
       }
 
