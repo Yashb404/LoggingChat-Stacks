@@ -32,16 +32,28 @@ export function ChatInterface() {
   const handleLoadLogs = async () => {
     if (!isConnected) return
 
+    console.log("[v0] Starting to load blockchain logs...")
     setIsLoadingLogs(true)
     try {
+      console.log("[v0] Calling getUserLogs()...")
       const logs = await getUserLogs()
-      setBlockchainLogs(logs)
-      console.log("Loaded blockchain logs:", logs)
+      console.log("[v0] getUserLogs returned:", logs)
+      console.log("[v0] logs type:", typeof logs)
+      console.log("[v0] logs length:", logs?.length)
+
+      setBlockchainLogs(logs || [])
+      console.log("[v0] Set blockchainLogs state to:", logs || [])
+
+      if (!logs || logs.length === 0) {
+        alert("No blockchain logs found. Check console for details.")
+      }
     } catch (error) {
-      console.error("Error loading logs:", error)
-      alert("Error loading blockchain logs: " + error)
+      console.error("[v0] Error loading logs:", error)
+    
+      
     } finally {
       setIsLoadingLogs(false)
+      console.log("[v0] Finished loading logs, isLoadingLogs set to false")
     }
   }
 
@@ -205,7 +217,7 @@ export function ChatInterface() {
                       <details className="mt-2">
                         <summary className="text-xs cursor-pointer text-muted-foreground">Raw Data</summary>
                         <code className="text-xs bg-muted p-2 rounded block mt-1 whitespace-pre-wrap">
-                          {log.rawData}
+                          {typeof log.rawData === "object" ? JSON.stringify(log.rawData, null, 2) : log.rawData}
                         </code>
                       </details>
                     )}
