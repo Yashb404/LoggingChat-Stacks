@@ -274,7 +274,7 @@ export function ChatInterface({ walletState }: ChatInterfaceProps) {
       {/* Chat Messages - Takes remaining height */}
       <Card className="flex-1 flex flex-col min-h-0">
         <CardHeader className="flex-shrink-0 pb-3">
-          <CardTitle>Chat with Gemini AI</CardTitle>
+          <CardTitle>Chat with AI</CardTitle>
         </CardHeader>
         <CardContent className="flex-1 flex flex-col p-0 min-h-0">
           <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
