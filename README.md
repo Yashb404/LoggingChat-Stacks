@@ -5,6 +5,8 @@ A modern, blockchain-powered chat application that integrates Google's Gemini AI
 This can be expanded to Real chat applications
 
 ---
+## Contract Address 
+STKNRFQ8SSPZE263K0R2N4HZG2G3JY4KZ03F4EPA.logger
 
 ## Live Demo
 
