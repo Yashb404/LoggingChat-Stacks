@@ -8,10 +8,25 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
 import { Send, Save, Shield, Loader2, LogOut, History } from "lucide-react"
 import { useGemini } from "@/hooks/use-gemini"
-import { useStacks } from "@/hooks/use-stacks"
+import { useChatInstances } from "@/hooks/use-chat-instances"
 import type { ChatMessage } from "@/types/chat"
 
-export function ChatInterface() {
+// Update the wallet state interface to match the actual return types
+interface WalletState {
+  isConnected: boolean
+  connectWallet: () => void
+  disconnectWallet: () => void
+  userAddress?: string
+  saveToBlockchain: (prompt: string, response: string) => Promise<string | undefined>
+  verifyChat: (prompt: string, response: string) => Promise<boolean>
+  getUserLogs: () => Promise<any[]>
+}
+
+interface ChatInterfaceProps {
+  walletState: WalletState
+}
+
+export function ChatInterface({ walletState }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -20,8 +35,20 @@ export function ChatInterface() {
   const scrollAreaRef = useRef<HTMLDivElement>(null)
 
   const { sendMessage } = useGemini()
-  const { saveToBlockchain, verifyChat, getUserLogs, isConnected, connectWallet, disconnectWallet, userAddress } =
-    useStacks()
+  
+  // Use wallet state from props instead of the hook
+  const { 
+    isConnected, 
+    connectWallet, 
+    disconnectWallet, 
+    userAddress,
+    saveToBlockchain,
+    verifyChat,
+    getUserLogs
+  } = walletState
+  
+  // Get the chat instance manager
+  const { activeChat, updateChatLastMessage } = useChatInstances()
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -68,6 +95,12 @@ export function ChatInterface() {
     }
 
     setMessages((prev) => [...prev, userMessage])
+    
+    // Update the chat instance with the last message
+    if (activeChat) {
+      updateChatLastMessage(activeChat.id, input)
+    }
+    
     setInput("")
     setIsLoading(true)
 
@@ -80,6 +113,11 @@ export function ChatInterface() {
         timestamp: new Date(),
       }
       setMessages((prev) => [...prev, aiMessage])
+      
+      // Update the chat instance with the AI response
+      if (activeChat) {
+        updateChatLastMessage(activeChat.id, response)
+      }
     } catch (error) {
       console.error("Error sending message:", error)
       const errorMessage: ChatMessage = {
@@ -102,7 +140,11 @@ export function ChatInterface() {
       const lastAiMessage = messages.filter((m) => m.role === "assistant").pop()
 
       if (lastUserMessage && lastAiMessage) {
-        await saveToBlockchain(lastUserMessage.content, lastAiMessage.content)
+        const result = await saveToBlockchain(lastUserMessage.content, lastAiMessage.content)
+        // TODO: Handle the result (transaction hash) if needed
+        if (result) {
+          console.log("Transaction hash:", result)
+        }
       }
     } catch (error) {
       console.error("Error saving to blockchain:", error)
@@ -126,9 +168,9 @@ export function ChatInterface() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="h-full flex flex-col space-y-4">
       {/* Wallet Connection */}
-      <Card>
+      <Card className="flex-shrink-0">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5" />
@@ -163,7 +205,7 @@ export function ChatInterface() {
                 </Button>
                 <Button onClick={handleLoadLogs} size="sm" variant="outline" disabled={isLoadingLogs}>
                   {isLoadingLogs ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="h-4 w-4 mr-2" />
                   ) : (
                     <History className="h-4 w-4 mr-2" />
                   )}
@@ -181,7 +223,7 @@ export function ChatInterface() {
 
       {/* Blockchain Logs Display */}
       {isConnected && blockchainLogs.length > 0 && (
-        <Card>
+        <Card className="flex-shrink-0">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <History className="h-5 w-5" />
@@ -229,12 +271,12 @@ export function ChatInterface() {
         </Card>
       )}
 
-      {/* Chat Messages - Fixed Layout */}
-      <Card className="flex flex-col h-[450px]">
+      {/* Chat Messages - Takes remaining height */}
+      <Card className="flex-1 flex flex-col min-h-0">
         <CardHeader className="flex-shrink-0 pb-3">
           <CardTitle>Chat with Gemini AI</CardTitle>
         </CardHeader>
-        <CardContent className="flex-1 flex flex-col p-0">
+        <CardContent className="flex-1 flex flex-col p-0 min-h-0">
           <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
             <div className="space-y-4">
               {messages.map((message) => (
