@@ -28,20 +28,24 @@ You can try out the live application deployed on Vercel:
 
 ## Screenshots
 
-Main Interface
- 
+### 🖥️ Main Interface  
 <img width="1164" height="925" alt="Screenshot 2025-08-24 133918" src="https://github.com/user-attachments/assets/69ce7e0c-9894-44a7-8f5b-c78dd4920bb1" />
 
-Add and rename multiple chats
+---
+
+### 💬 Add and Rename Multiple Chats  
 <img width="333" height="371" alt="Screenshot 2025-08-24 133137" src="https://github.com/user-attachments/assets/cc70d39d-7c7b-48ee-b563-88602536721a" />
 
-Access Logs
- <img width="1151" height="706" alt="Screenshot 2025-08-24 133042" src="https://github.com/user-attachments/assets/4d66ee83-6b42-4c53-9dd7-6107b6b5dd02" />
+---
 
-Save hash to blockchain
-<img width="799" height="922" alt="Screenshot 2025-08-24 133023" src="https://github.com/user-attachments/assets/5c9d476a-6f47-48a8-8cab-2e88b749e7c9" />
+### 📜 Access Logs  
+<img width="1151" height="706" alt="Screenshot 2025-08-24 133042" src="https://github.com/user-attachments/assets/4d66ee83-6b42-4c53-9dd7-6107b6b5dd02" />
+
+---
+
+### 🔐 Save Hash to Blockchain  
+<img width="799" height="922" alt="Screenshot 2025-08-24 133023" src="https://github.com/user-attachments/assets/5c9d476a-6f47-48a8-8cab-2e88b749e7c9" />  
 <img width="559" height="229" alt="Screenshot 2025-08-24 133005" src="https://github.com/user-attachments/assets/b427d6a2-9817-42bf-b180-ea4c0605edb3" />
-
 
 
 ## Technology Stack
