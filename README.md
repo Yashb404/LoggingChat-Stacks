@@ -1,6 +1,8 @@
 # AI.veristacks: A Decentralized Gemini Chat Application
 
-A modern, blockchain-powered chat application that integrates Google's Gemini AI with the Stacks blockchain for secure, verifiable conversations. The application allows users to chat with an AI, then immutably save a hash of their conversation to the Stacks blockchain, providing a permanent and verifiable record of the exchange.
+A modern, blockchain-powered chat application that integrates Google's Gemini AI with the Stacks blockchain for secure, verifiable conversations. The application allows users to chat with an AI, then immutably save a hash of their conversation to the Stacks blockchain, providing a permanent and verifiable record of the exchange.By cross referencing the hashes of the conversation to check for tampering
+
+This can be expanded to Real chat applications
 
 ---
 
@@ -26,11 +28,21 @@ You can try out the live application deployed on Vercel:
 
 ## Screenshots
 
-| Main Interface | Saving to Blockchain | Viewing On-Chain Logs |
-| :---: | :---: | :---: |
-| | | |
+Main Interface
+ 
+<img width="1164" height="925" alt="Screenshot 2025-08-24 133918" src="https://github.com/user-attachments/assets/69ce7e0c-9894-44a7-8f5b-c78dd4920bb1" />
 
----
+Add and rename multiple chats
+<img width="333" height="371" alt="Screenshot 2025-08-24 133137" src="https://github.com/user-attachments/assets/cc70d39d-7c7b-48ee-b563-88602536721a" />
+
+Access Logs
+ <img width="1151" height="706" alt="Screenshot 2025-08-24 133042" src="https://github.com/user-attachments/assets/4d66ee83-6b42-4c53-9dd7-6107b6b5dd02" />
+
+Save hash to blockchain
+<img width="799" height="922" alt="Screenshot 2025-08-24 133023" src="https://github.com/user-attachments/assets/5c9d476a-6f47-48a8-8cab-2e88b749e7c9" />
+<img width="559" height="229" alt="Screenshot 2025-08-24 133005" src="https://github.com/user-attachments/assets/b427d6a2-9817-42bf-b180-ea4c0605edb3" />
+
+
 
 ## Technology Stack
 
@@ -91,3 +103,56 @@ chat-logger/
 │   └── logger.test.ts      # Vitest unit tests for the smart contract.
 ├── Clarinet.toml           # Clarinet project configuration file.
 └── package.json            # Dependencies and scripts for contract testing.
+```
+
+# Local Development Setup
+
+Follow these steps to run the application locally.
+
+---
+
+## 1. Prerequisites
+
+- Node.js v18 or later.  
+- NPM or another package manager.  
+- A Stacks-compatible wallet extension in your browser (e.g., Leather).  
+
+---
+
+## 2. Clone the Repository
+
+```bash
+git clone https://github.com/yashb404/loggingchat-stacks.git
+cd loggingchat-stacks
+
+```
+## 3. Set Up Environment Variables
+Navigate to the frontend directory and create a .env.local file.
+```
+cd chat-logger/frontend
+touch .env.local
+```
+Add the following environment variables to your .env.local file.
+You must add your own Gemini API key.
+```
+# Add your Gemini API key here
+NEXT_PUBLIC_GEMINI_API_KEY=
+# Stacks network configuration
+NEXT_PUBLIC_STACKS_NETWORK=testnet
+NEXT_PUBLIC_CONTRACT_ADDRESS=STKNRFQ8SSPZE263K0R2N4HZG2G3JY4KZ03F4EPA
+NEXT_PUBLIC_CONTRACT_NAME=logger
+```
+## 4. Install Dependencies & Run
+```
+# Navigate to the frontend directory
+cd chat-logger/frontend
+
+# Install frontend dependencies
+npm install
+
+# Run the development server
+npm run dev
+```
+Open app at:
+
+http://localhost:3000
