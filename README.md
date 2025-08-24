@@ -8,6 +8,9 @@ This can be expanded to Real chat applications
 ## Contract Address 
 STKNRFQ8SSPZE263K0R2N4HZG2G3JY4KZ03F4EPA.logger
 
+<img width="1886" height="934" alt="image" src="https://github.com/user-attachments/assets/7dfc7d66-98e3-4848-a92c-933741e7e41f" />
+
+
 ## Live Demo
 
 You can try out the live application deployed on Vercel:
