@@ -49,8 +49,8 @@ export function ChatInterface() {
       }
     } catch (error) {
       console.error("[v0] Error loading logs:", error)
-    
-      
+      // TODO: Add proper error handling and user feedback
+      alert("Failed to load blockchain logs. Please try again.")
     } finally {
       setIsLoadingLogs(false)
       console.log("[v0] Finished loading logs, isLoadingLogs set to false")
@@ -229,13 +229,13 @@ export function ChatInterface() {
         </Card>
       )}
 
-      {/* Chat Messages */}
-      <Card className="h-[500px]">
-        <CardHeader>
+      {/* Chat Messages - Fixed Layout */}
+      <Card className="flex flex-col h-[450px]">
+        <CardHeader className="flex-shrink-0 pb-3">
           <CardTitle>Chat with Gemini AI</CardTitle>
         </CardHeader>
-        <CardContent className="p-0">
-          <ScrollArea className="h-[400px] p-4" ref={scrollAreaRef}>
+        <CardContent className="flex-1 flex flex-col p-0">
+          <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
             <div className="space-y-4">
               {messages.map((message) => (
                 <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
@@ -259,8 +259,8 @@ export function ChatInterface() {
             </div>
           </ScrollArea>
 
-          {/* Input Area */}
-          <div className="p-4 border-t">
+          {/* Input Area - Fixed positioning */}
+          <div className="flex-shrink-0 p-4 border-t bg-background">
             <div className="flex gap-2">
               <Input
                 value={input}
@@ -268,6 +268,7 @@ export function ChatInterface() {
                 placeholder="Type your message..."
                 onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
                 disabled={isLoading}
+                className="flex-1"
               />
               <Button onClick={handleSendMessage} disabled={isLoading || !input.trim()}>
                 <Send className="h-4 w-4" />
